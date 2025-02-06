@@ -9,7 +9,7 @@ Objective: Demonstrate that you can perform automated reasoning about actions us
 
 Details: View problem details and access example instances by downloading the project package via the link that follows.
 
-CSE579_course-project_package.zipDownload CSE579_course-project_package.zip
+[CSE579_course-project_package.zipDownload CSE579_course-project_package.zip](https://canvas.asu.edu/courses/199305/files/92332185/download?download_frd=1)
 
 The package consists of the following elements:
 
