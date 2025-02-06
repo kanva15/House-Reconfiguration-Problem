@@ -1,0 +1,52 @@
+person(P) :- legacyConfig(person(P)).
+thing(T) :- legacyConfig(thing(T)).
+cabinet(C) :- legacyConfig(cabinet(C)).
+room(R) :- legacyConfig(room(R)).
+cabinet(C) :- cabinetDomainNew(C).
+room(R) :- roomDomainNew(R).
+personTOthing(P,T) :- legacyConfig(personTOthing(P,T)).
+thingShort(T) :- legacyConfig(thing(T)), not thingLong(T).
+thingLong(T) :- legacyConfig(thingLong(T)).
+{ cabinetTOthing(C,T) : cabinet(C) } = 1 :- thing(T).
+{ roomTOcabinet(R,C) : room(R) } = 1 :- cabinet(C), cabinetTOthing(C,_).
+{ cabinetHigh(C) } :- cabinet(C).
+cabinetSmall(C) :- cabinet(C), not cabinetHigh(C).
+:- thing(T), not 1 { cabinetTOthing(C,T) : cabinet(C) } 1.
+:- cabinet(C), 6 { cabinetTOthing(C,T) : thing(T) }.
+:- cabinetTOthing(C,_), not 1 { roomTOcabinet(R,C) : room(R) } 1. 
+:- room(R), #sum { 1,C : roomTOcabinet(R,C), cabinetSmall(C); 2,C : roomTOcabinet(R,C),
+cabinetHigh(C) } > 4.
+:- roomTOcabinet(R,C1), roomTOcabinet(R,C2), cabinetTOthing(C1,T1), cabinetTOthing(C2,T2),
+ personTOthing(P1,T1), personTOthing(P2,T2), P1 != P2.
+:- thingLong(T), cabinetTOthing(C,T), not cabinetHigh(C).
+personTOroom(P,R) :- roomTOcabinet(R,C), cabinetTOthing(C,T), personTOthing(P,T).
+{ cabinet(C) : cabinetDomainNew(C), C <= 23 }.
+{ room(R) : roomDomainNew(R), R <= 20 }.
+reuseCabinetAsSmallCost(C) :- cabinetSmall(C), legacyConfig(cabinet(C)). 
+reuseCabinetAsHighCost(C) :- cabinetHigh(C), legacyConfig(cabinet(C)).
+reuseRoomCost(R) :- room(R), legacyConfig(room(R)).
+removeCabinetTOthingCost(C,T) :- legacyConfig(cabinetTOthing(C,T)), not cabinetTOthing(C,T).
+removeRoomTOcabinetCost(R,C) :- legacyConfig(roomTOcabinet(R,C)), not roomTOcabinet(R,C).
+removeCabinetCost(C) :- legacyConfig(cabinet(C)), not cabinet(C).
+removeRoomCost(R) :- legacyConfig(room(R)), not room(R).
+cabinetHighCost(C) :- cabinetHigh(C), not legacyConfig(cabinet(C)).
+cabinetSmallCost(C) :- cabinetSmall(C), not legacyConfig(cabinet(C)).
+roomCost(R) :- room(R), not legacyConfig(room(R)). 
+#minimize {
+ 2,C : reuseCabinetAsSmallCost(C);
+ 3,C : reuseCabinetAsHighCost(C);
+ 1,R : reuseRoomCost(R);
+ 5,(C,T) : removeCabinetTOthingCost(C,T);
+ 4,(R,C) : removeRoomTOcabinetCost(R,C);
+ 6,C : removeCabinetCost(C);
+ 7,R : removeRoomCost(R);
+ 2,C : cabinetHighCost(C);
+ 1,C : cabinetSmallCost(C);
+ 3,R : roomCost(R)
+}.
+#show cabinet/1.
+#show cabinetHigh/1.
+#show cabinetSmall/1. 
+#show room/1.
+#show cabinetTOthing/2.
+#show roomTOcabinet/2. 
